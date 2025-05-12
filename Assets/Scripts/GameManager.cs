@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using UnityEditor;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -12,6 +13,10 @@ public class GameManager : MonoBehaviour
     public TMP_Text scoreText;
     public TMP_Text highScoreText;
     public GameObject gameOverScreen;
+
+
+    public RectTransform hpFill;
+    public float maxWidth = 200f;
 
     private static GameManager instance;
     public static GameManager GetInstance()
@@ -114,6 +119,13 @@ public class GameManager : MonoBehaviour
 #else
         Application.Quit();
 #endif
+    }
+
+    public void UpdateHPBar(int currentHP, int maxHP)
+    {
+        float ratio = (float)currentHP / maxHP;
+        float width = ratio * maxWidth;
+        hpFill.sizeDelta = new Vector2(width, hpFill.sizeDelta.y);
     }
 
 }

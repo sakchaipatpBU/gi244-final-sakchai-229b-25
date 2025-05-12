@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -27,6 +28,15 @@ public class PlayerController : MonoBehaviour
     private float normalSpeed;
     private bool isImmune = false;
     private float immuneTime = 0f;
+
+    // feature hp
+    [SerializeField] private int maxHP = 5;
+    private int currentHP;
+    public int GetHp()
+    {
+        return currentHP;
+    }
+    public TMP_Text hpText;
 
 
     private static PlayerController instance;
@@ -58,6 +68,9 @@ public class PlayerController : MonoBehaviour
         playerAnim.SetFloat("Speed_f", 1);
 
         normalSpeed = bg.speed;
+
+        currentHP = maxHP;
+        UpdateHP();
     }
 
     // Update is called once per frame
@@ -97,20 +110,29 @@ public class PlayerController : MonoBehaviour
                 collision.gameObject.GetComponent<DestroyOutOfBound>().ReturnObj();
                 return;
             }
-            isGameOver = true;
-            playerAnim.SetBool("Death_b", true);
-            playerAudio.PlayOneShot(crashFx, 1f);
-            dirtParticle.Stop();
-            explosionParticle.Play();
 
-            // หยุดและบันทึกคะแนน
-            Score sc = Score.GetInstance();
-            sc.StopScore();
-            float score = sc.score;
+            // ชน Obstacle -> hp ลด
+            currentHP--;
+            UpdateHP();
+            if (currentHP <= 0)
+            {
+                isGameOver = true;
+                playerAnim.SetBool("Death_b", true);
+                playerAudio.PlayOneShot(crashFx, 1f);
+                dirtParticle.Stop();
+                explosionParticle.Play();
 
-            GameManager gm = GameManager.GetInstance();
-            gm.SaveScore(score);
-            gm.gameOverScreen.SetActive(true);
+                // หยุดและบันทึกคะแนน
+                Score sc = Score.GetInstance();
+                sc.StopScore();
+                float score = sc.score;
+
+                GameManager gm = GameManager.GetInstance();
+                gm.SaveScore(score);
+                gm.gameOverScreen.SetActive(true);
+            }
+            collision.gameObject.GetComponent<DestroyOutOfBound>().ReturnObj();
+
         }
     }
     private void OnTriggerEnter(Collider other)
@@ -120,11 +142,30 @@ public class PlayerController : MonoBehaviour
             ActivateImmuneBoost();
             Destroy(other.gameObject);
         }
+
+        if (other.CompareTag("HpPowerup"))
+        {
+            Heal(1);
+            Destroy(other.gameObject);
+        }
     }
     void ActivateImmuneBoost()
     {
         isImmune = true;
         immuneTime = 5f;
         bg.speed = boostSpeed;
+    }
+
+    void Heal(int amount)
+    {
+        currentHP += amount;
+        if (currentHP > maxHP) currentHP = maxHP;
+        UpdateHP();
+    }
+
+    public void UpdateHP()
+    {
+        hpText.text = "HP: " + currentHP.ToString();
+        GameManager.GetInstance().UpdateHPBar(currentHP, maxHP);
     }
 }
