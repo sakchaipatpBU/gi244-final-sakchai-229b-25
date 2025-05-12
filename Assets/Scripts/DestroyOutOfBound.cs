@@ -9,7 +9,12 @@ public class DestroyOutOfBound : MonoBehaviour
     {
         if (transform.position.x < leftBound)
         {
-            ObstacleObjectPool.GetInstance().Return(gameObject, obstacleIndex);
+            ReturnObj();
         }
+    }
+
+    public void ReturnObj()
+    {
+        ObstacleObjectPool.GetInstance().Return(gameObject, obstacleIndex);
     }
 }
