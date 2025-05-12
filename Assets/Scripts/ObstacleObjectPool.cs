@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,6 +13,8 @@ public class ObstacleObjectPool : MonoBehaviour
     private readonly List<GameObject> obstaclePoolBarrel = new List<GameObject>();
     private readonly List<GameObject> obstaclePoolCrate = new List<GameObject>();
     private readonly List<GameObject> obstaclePoolStoneWall = new List<GameObject>();
+    private readonly List<GameObject> obstaclePoolRock = new List<GameObject>();
+    private readonly List<GameObject> obstaclePoolBarrier = new List<GameObject>();
 
     private static ObstacleObjectPool instance;
 
@@ -74,10 +77,21 @@ public class ObstacleObjectPool : MonoBehaviour
             obstaclePoolStoneWall.Add(obstacle);
             Debug.Log("Pool Stone Wall >> Add}");
         }
+        else if (poolIndex == 3)
+        {
+            obstaclePoolRock.Add(obstacle);
+            Debug.Log("Pool Rock >> Add}");
+        }
+        else if (poolIndex == 4)
+        {
+            obstaclePoolBarrier.Add(obstacle);
+            Debug.Log("Pool Barrier >> Add}");
+        }
         else
         {
             Debug.Log("No Pool for Add}");
         }
+
     }
 
     public GameObject Acquire(int poolIndex)
@@ -90,53 +104,54 @@ public class ObstacleObjectPool : MonoBehaviour
         // ถ้า index ไม่ตรงกับ pool ให้ return null ไปก่อน
 
         GameObject obstacle;
-
         if (poolIndex == 0)
         {
-            if (obstaclePoolBarrel.Count == 0)
-            {
-                CreateNewObstacle(0);
-            }
-            obstacle = obstaclePoolBarrel[0];
-            obstaclePoolBarrel.RemoveAt(0);
-            obstacle.SetActive(true);
-
+            obstacle = AcquireFromList(poolIndex, obstaclePoolBarrel);
             Debug.Log("Acquire Barrel");
-
             return obstacle;
         }
         else if (poolIndex == 1)
         {
-            if (obstaclePoolCrate.Count == 0)
-            {
-                CreateNewObstacle(1);
-            }
-            obstacle = obstaclePoolCrate[0];
-            obstaclePoolCrate.RemoveAt(0);
-            obstacle.SetActive(true);
-
+            obstacle = AcquireFromList(poolIndex, obstaclePoolCrate);
             Debug.Log("Acquire Create");
-
             return obstacle;
         }
         else if (poolIndex == 2)
         {
-            if (obstaclePoolStoneWall.Count == 0)
-            {
-                CreateNewObstacle(2);
-            }
-            obstacle = obstaclePoolStoneWall[0];
-            obstaclePoolStoneWall.RemoveAt(0);
-            obstacle.SetActive(true);
-
+            obstacle = AcquireFromList(poolIndex, obstaclePoolStoneWall);
             Debug.Log("Acquire Stone Wall");
-
             return obstacle;
         }
-
+        else if (poolIndex == 3)
+        {
+            obstacle = AcquireFromList(poolIndex, obstaclePoolRock);
+            Debug.Log("Acquire Rock");
+            return obstacle;
+        }
+        else if (poolIndex == 4)
+        {
+            obstacle = AcquireFromList(poolIndex, obstaclePoolBarrier);
+            Debug.Log("Acquire Barrier");
+            return obstacle;
+        }
         Debug.Log("No Pool for Acquire");
         return null;
     }
+
+    public GameObject AcquireFromList(int idx, List<GameObject> list)
+    {
+        GameObject obstacle;
+        if (list.Count == 0)
+        {
+            CreateNewObstacle(idx);
+        }
+        obstacle = list[0];
+        list.RemoveAt(0);
+        obstacle.SetActive(true);
+
+        return obstacle;
+    }
+
 
     public void Return(GameObject obstacle, int poolIndex)
     {
@@ -157,6 +172,16 @@ public class ObstacleObjectPool : MonoBehaviour
         {
             obstaclePoolStoneWall.Add(obstacle);
             Debug.Log("Return Stone Wall");
+        }
+        else if (poolIndex == 3)
+        {
+            obstaclePoolRock.Add(obstacle);
+            Debug.Log("Return Rock");
+        }
+        else if (poolIndex == 4)
+        {
+            obstaclePoolBarrier.Add(obstacle);
+            Debug.Log("Return Barrier");
         }
 
         obstacle.SetActive(false);
