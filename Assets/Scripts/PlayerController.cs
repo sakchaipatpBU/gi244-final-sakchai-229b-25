@@ -19,8 +19,23 @@ public class PlayerController : MonoBehaviour
     public ParticleSystem dirtParticle;
     public ParticleSystem explosionParticle;
 
+
+    private static PlayerController instance;
+    public static PlayerController GetInstance()
+    {
+        return instance;
+    }
     void Awake()
     {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+
         rb = GetComponent<Rigidbody>();
         jumpAction = InputSystem.actions.FindAction("Jump");
     }
@@ -62,6 +77,15 @@ public class PlayerController : MonoBehaviour
             playerAudio.PlayOneShot(crashFx, 1f);
             dirtParticle.Stop();
             explosionParticle.Play();
+
+            // หยุดและบันทึกคะแนน
+            Score sc = Score.GetInstance();
+            sc.StopScore();
+            float score = sc.score;
+
+            GameManager gm = GameManager.GetInstance();
+            gm.SaveScore(score);
+            gm.gameOverScreen.SetActive(true);
         }
     }
 }
